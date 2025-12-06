@@ -1,0 +1,38 @@
+name: Deploy and Report to Jira
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Simulated deployment (replace with real steps later)
+      - name: Deploy Application
+        run: echo "Deployment completed successfully..."
+
+      - name: Extract Jira Issue Keys
+        id: extract
+        run: |
+          ISSUE_KEYS=$(git log -1 --pretty=%B | grep -oE 'WEB-[0-9]+' | tr '\n' ',' | sed 's/,$//')
+          if [ -z "$ISSUE_KEYS" ]; then
+            ISSUE_KEYS="WEB-1,WEB-2"
+          fi
+          echo "issue_keys=$ISSUE_KEYS" >> $GITHUB_OUTPUT
+
+      - name: Report Deployment to Jira
+        uses: atlassian/gajira-deploy@v3
+        with:
+          environment: "Production"
+          status: "successful"
+          issue: ${{ steps.extract.outputs.issue_keys }}
+        env:
+          JIRA_BASE_URL: "https://ericuwinezastarboy-1763312723965.atlassian.net"
+          JIRA_USER_EMAIL: "ericuwinezastarboy@gmail.com"
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
