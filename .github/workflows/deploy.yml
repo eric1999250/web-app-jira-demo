@@ -27,7 +27,7 @@ jobs:
           echo "issue_keys=$ISSUE_KEYS" >> $GITHUB_OUTPUT
 
       - name: Report Deployment to Jira
-        uses: atlassian/gajira-deploy@v3
+        uses: atlassian/gajira-deploy@v2
         with:
           environment: "Production"
           status: "successful"
