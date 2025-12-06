@@ -8,31 +8,22 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # Simulated deployment (replace with real steps later)
       - name: Deploy Application
-        run: echo "Deployment completed successfully..."
+        run: echo "Deployment simulated — replace with real deploy command"
 
-      - name: Extract Jira Issue Keys
-        id: extract
-        run: |
-          ISSUE_KEYS=$(git log -1 --pretty=%B | grep -oE 'WEB-[0-9]+' | tr '\n' ',' | sed 's/,$//')
-          if [ -z "$ISSUE_KEYS" ]; then
-            ISSUE_KEYS="WEB-1,WEB-2"
-          fi
-          echo "issue_keys=$ISSUE_KEYS" >> $GITHUB_OUTPUT
-
-      - name: Report Deployment to Jira
-        uses: atlassian/gajira-deploy@v2
+      - name: Create GitHub deployment (for Jira)
+        uses: chrnorm/deployment-action@releases/v1
         with:
-          environment: "Production"
-          status: "successful"
-          issue: ${{ steps.extract.outputs.issue_keys }}
-        env:
-          JIRA_BASE_URL: "https://ericuwinezastarboy-1763312723965.atlassian.net"
-          JIRA_USER_EMAIL: "ericuwinezastarboy@gmail.com"
-          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          environment: "production"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set deployment status to success
+        uses: chrnorm/deployment-action@releases/v1
+        if: success()
+        with:
+          environment: "production"
+          status: "success"
+          token: ${{ secrets.GITHUB_TOKEN }}
